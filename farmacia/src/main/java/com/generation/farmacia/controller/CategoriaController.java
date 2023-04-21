@@ -20,6 +20,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.generation.farmacia.model.Categoria;
 import com.generation.farmacia.repository.CategoriaRepository;
+import com.generation.farmacia.repository.ProdutosRepository;
 
 import jakarta.validation.Valid;
 
@@ -31,7 +32,7 @@ public class CategoriaController {
 	@Autowired
 	private CategoriaRepository categoriaRepository;
 	
-	
+
 	
 	/*METODO LISTAR TODAS CATEGORIAS  */
 	

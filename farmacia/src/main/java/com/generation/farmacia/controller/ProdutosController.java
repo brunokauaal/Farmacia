@@ -1,5 +1,6 @@
 package com.generation.farmacia.controller;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.generation.farmacia.model.Produtos;
+import com.generation.farmacia.repository.CategoriaRepository;
 import com.generation.farmacia.repository.ProdutosRepository;
 
 import jakarta.validation.Valid;
@@ -30,6 +32,9 @@ public class ProdutosController {
 
 	@Autowired
 	private ProdutosRepository produtosRepository;
+
+	@Autowired
+	private CategoriaRepository categoriaRepository;
 
 	/* METODO PARA LISTAR TODOS OS PRODUTOS DA FARMACIA */
 
@@ -48,52 +53,60 @@ public class ProdutosController {
 
 	}
 
-	/* METODO BUSCAR POR NOME*/
-	
+	/* METODO BUSCAR POR NOME */
+
 	@GetMapping("/nome/{nome}")
 	public ResponseEntity<List<Produtos>> getByNome(@PathVariable("nome") String nome) {
 		return ResponseEntity.ok(produtosRepository.findAllByNomeContainingIgnoreCase(nome));
-				
 
 	}
-	
-	
-	/* METODO CADASTRAR PRODUTOS*/
-	
+
+	/* METODO CADASTRAR PRODUTOS */
+
 	@PostMapping
-	public ResponseEntity<Produtos> post(@Valid @RequestBody Produtos produtos){
-		
-		return ResponseEntity.status(HttpStatus.CREATED)
-				.body(produtosRepository.save(produtos));
-		
+	public ResponseEntity<Produtos> post(@Valid @RequestBody Produtos produtos) {
+
+		return ResponseEntity.status(HttpStatus.CREATED).body(produtosRepository.save(produtos));
+
 	}
-	
-	
-		/* METODO ATUALIZAR PRODUTO */
-	
+
+	/* METODO BUSCAR MAIOR PREÇO */
+
+	@GetMapping("/preco/{precomaior}")
+	public ResponseEntity<List<Produtos>> getByPrecoMaior(@PathVariable("precomaior") BigDecimal precoMaior) {
+		List<Produtos> produtos = produtosRepository.findAllByPrecoGreaterThanOrderByPreco(precoMaior);
+		return ResponseEntity.ok(produtos);
+	}
+
+	/* METODO BUSCAR MENOR PREÇO */
+
+	@GetMapping("/preco_menor/{precomenor}")
+	public ResponseEntity<List<Produtos>> getByPrecoMenor(@PathVariable("precomenor") BigDecimal precomenor) {
+		List<Produtos> produtos = produtosRepository.findAllByPrecoLessThanOrderByPrecoDesc(precomenor);
+		return ResponseEntity.ok(produtos);
+	}
+
+	/* METODO ATUALIZAR PRODUTO */
+
 	@PutMapping
-	public ResponseEntity<Produtos> put(@Valid @RequestBody Produtos produtos){
+	public ResponseEntity<Produtos> put(@Valid @RequestBody Produtos produtos) {
 		return produtosRepository.findById(produtos.getId())
-		.map(resposta -> ResponseEntity.status(HttpStatus.OK)
-				.body(produtosRepository.save(produtos)))
-		.orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).build());
-	
+				.map(resposta -> ResponseEntity.status(HttpStatus.OK).body(produtosRepository.save(produtos)))
+				.orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).build());
+
 	}
-	
+
 	/* METODO DELETAR PRODUTOS CADASTRADOS */
-	
+
 	@ResponseStatus(HttpStatus.NO_CONTENT)
 	@DeleteMapping("/{id}")
-	public void delete (@PathVariable Long id) {
-		
-		Optional<Produtos> produtos= produtosRepository.findById(id);
-			if(produtos.isEmpty())
+	public void delete(@PathVariable Long id) {
+
+		Optional<Produtos> produtos = produtosRepository.findById(id);
+		if (produtos.isEmpty())
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-			produtosRepository.deleteById(id);
-		
+		produtosRepository.deleteById(id);
+
 	}
-	
-	
-	
-	
+
 }

@@ -1,5 +1,6 @@
 package com.generation.farmacia.repository;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -11,4 +12,11 @@ public interface ProdutosRepository extends JpaRepository<Produtos, Long> {
 
 	List<Produtos> findAllByNomeContainingIgnoreCase(@Param("nome") String nome);
 	
+	List<Produtos>findAllByPrecoBefore(@Param("preco") BigDecimal preco);
+	
+	
+	List<Produtos> findAllByPrecoGreaterThanOrderByPreco(@Param("preco") BigDecimal preco);
+
+
+	 List<Produtos> findAllByPrecoLessThanOrderByPrecoDesc(@Param("preco") BigDecimal preco);
 }
