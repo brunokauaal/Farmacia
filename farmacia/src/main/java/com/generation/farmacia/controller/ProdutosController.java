@@ -53,21 +53,30 @@ public class ProdutosController {
 
 	}
 
-	/* METODO BUSCAR POR NOME */
+	/* METODO BUSCAR POR NOME E LABORATORIO */
 
-	@GetMapping("/nome/{nome}")
-	public ResponseEntity<List<Produtos>> getByNome(@PathVariable("nome") String nome) {
-		return ResponseEntity.ok(produtosRepository.findAllByNomeContainingIgnoreCase(nome));
+	@GetMapping("/nome/{nome}/elaboratorio/{laboratorio}")
+	public ResponseEntity<List<Produtos>> getByNomeELaboratorio(@PathVariable String nome,
+			@PathVariable String laboratorio) {
+		return ResponseEntity.ok(produtosRepository.findAllByNomeAndLaboratorio(nome, laboratorio));
+	}
 
+	/* CONSULTA POR NOME OU LABORATORIO */
+
+	@GetMapping("/nome/{nome}/oulaboratorio/{laboratorio}")
+	public ResponseEntity<List<Produtos>> getByNomeOuLaboratorio(@PathVariable String nome,
+			@PathVariable String laboratorio) {
+		return ResponseEntity.ok(produtosRepository.findAllByNomeOrLaboratorio(nome, laboratorio));
 	}
 
 	/* METODO CADASTRAR PRODUTOS */
 
 	@PostMapping
 	public ResponseEntity<Produtos> post(@Valid @RequestBody Produtos produtos) {
+		if (categoriaRepository.existsById(produtos.getCategoria().getId()))
+			return ResponseEntity.status(HttpStatus.CREATED).body(produtosRepository.save(produtos));
 
-		return ResponseEntity.status(HttpStatus.CREATED).body(produtosRepository.save(produtos));
-
+		return ResponseEntity.badRequest().build();
 	}
 
 	/* METODO BUSCAR MAIOR PREÇO */
@@ -107,6 +116,14 @@ public class ProdutosController {
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND);
 		produtosRepository.deleteById(id);
 
+	}
+
+	/* CONSULTA POR PREÇO ENTRE DOIS VALORES (Between) */
+
+	@GetMapping("/preco_inicial/{inicio}/preco_final/{fim}")
+	public ResponseEntity<List<Produtos>> getByPrecoEntreNatve(@PathVariable BigDecimal inicio,
+			@PathVariable BigDecimal fim) {
+		return ResponseEntity.ok(produtosRepository.findAllByPrecoBetween(inicio, fim));
 	}
 
 }
